@@ -8,8 +8,8 @@ from pystatus.scripts import create_db, user_create
 parser = OptionParser()
 parser.add_option("-c", "--create", dest="create",
                   help="create an object")
-parser.add_option("-n", "--nickname", dest="nickname",
-                  help="Objects' nickname")
+parser.add_option("-n", "--name", dest="name",
+                  help="Objects' name")
 parser.add_option("-e", "--email", dest="email",
                   help="Objects' email address")
 parser.add_option("-p", "--password", dest="password",
@@ -23,8 +23,8 @@ app = create_app(DevelopmentConfig)
 if options.create == 'db':
     create_db()
 elif options.create == 'user':
-    # TODO: check for nickname, email and password
-    user = user_create(nickname=options.nickname,
+    # TODO: check for username, email and password
+    user = user_create(username=options.name,
                        email=options.email,
                        password=options.password)
     print user

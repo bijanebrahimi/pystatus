@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xml:lang="en-US" xmlns="http://www.w3.org/2005/Atom" xmlns:thr="http://purl.org/syndication/thread/1.0" xmlns:georss="http://www.georss.org/georss" xmlns:activity="http://activitystrea.ms/spec/1.0/" xmlns:media="http://purl.org/syndication/atommedia" xmlns:poco="http://portablecontacts.net/spec/1.0" xmlns:ostatus="http://ostatus.org/schema/1.0" xmlns:statusnet="http://status.net/schema/api/1/">
  <generator uri="{{ config.BASE_URL }}" version="{# config.APP_VERSION #}">{{ config.APP_NAME }}</generator>
- <id>{{ config.BASE_URL }}{{ user.feed.atom }}</id>
+ <id>{{ user.atom_uri }}</id>
  <title>{{ user.nickname }}</title> <!-- user.name -->
  <subtitle>Updates from {{ user.nickname }} on {{ config.APP_NAME }}!</subtitle>
  <logo>{{ user.avatar() }}</logo>
@@ -11,7 +11,7 @@
   <uri>{{ config.BASE_URL }}{{ user.uri }}</uri>
   <!-- user.name -->
   <name>{{ user.nickname }}</name>
-  <link rel="alternate" type="text/html" href="{{ config.BASE_URL }}{{ user.profile }}"/>
+  <link rel="alternate" type="text/html" href="{{ user.profile_uri }}"/>
   <link rel="avatar" type="image/jpeg" media:width="170" media:height="170" href="{{ user.avatar(170) }}"/>
   <link rel="avatar" type="image/jpeg" media:width="96" media:height="96" href="{{ user.avatar(96) }}"/>
   <link rel="avatar" type="image/jpeg" media:width="48" media:height="48" href="{{ user.avatar(48) }}"/>
@@ -36,7 +36,7 @@
   <uri>{{ config.BASE_URL }}{{ user.uri }}</uri>
   <!-- user.name -->
   <name>{{ user.nickname }}</name>
-  <link rel="alternate" type="text/html" href="{{ config.BASE_URL }}{{ user.profile }}"/>
+  <link rel="alternate" type="text/html" href="{{ user.profile_uri }}"/>
   <link rel="avatar" type="image/jpeg" media:width="170" media:height="170" href="{{ user.avatar(170) }}"/>
   <link rel="avatar" type="image/jpeg" media:width="96" media:height="96" href="{{ user.avatar(96) }}"/>
   <link rel="avatar" type="image/jpeg" media:width="48" media:height="48" href="{{ user.avatar(48) }}"/>
@@ -54,11 +54,11 @@
   </poco:urls>
   <statusnet:profile_info local_id="{{ user.id }}"></statusnet:profile_info>
  </activity:subject>
- <link href="{{ config.BASE_URL }}{{ user.profile }}" rel="alternate" type="text/html"/>
+ <link href="{{ user.profile_uri }}" rel="alternate" type="text/html"/>
 <!--<link href="http://quitter.se/main/sup" rel="http://api.friendfeed.com/2008/03#sup" type="application/json"/>-->
- <link href="{{ config.BASE_URL }}{{ user.feed.hub }}" rel="hub"/>
- <link href="{{ config.BASE_URL }}{{ user.feed.salmon }}" rel="salmon"/>
- <link href="{{ config.BASE_URL }}{{ user.feed.salmon }}" rel="http://salmon-protocol.org/ns/salmon-replies"/>
- <link href="{{ config.BASE_URL }}{{ user.feed.salmon }}" rel="http://salmon-protocol.org/ns/salmon-mention"/>
- <link href="{{ config.BASE_URL }}{{ user.feed.atom }}" rel="self" type="application/atom+xml"/>
+ <link href="{{ config.BASE_URL }}/main/push/hub" rel="hub"/>
+ <link href="{{ user.salmon_uri }}" rel="salmon"/>
+ <link href="{{ user.salmon_uri }}" rel="http://salmon-protocol.org/ns/salmon-replies"/>
+ <link href="{{ user.salmon_uri }}" rel="http://salmon-protocol.org/ns/salmon-mention"/>
+ <link href="{{ user.feed_uri }}" rel="self" type="application/atom+xml"/>
 </feed>

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
-    <Subject>acct:{{ user.nickname }}@{{ config.HOST }}</Subject>
-    <Alias>{{ user.uri }}</Alias>
-    <Alias>{{ user.uri }}</Alias>
+    <Subject>acct:{{ user.username }}@{{ config.HOST }}</Subject>
+    <Alias>{{ user.profile_uri }}</Alias>
+    <Alias>{{ user.profile_uri }}</Alias>
     <Link rel="http://webfinger.net/rel/profile-page" type="text/html"
-          href="{{ base_url }}users/#{{ user.username }}"></Link>
+          href="{{ user.profile_uri }}"></Link>
     <Link rel="http://schemas.google.com/g/2010#updates-from"
-          href="{{ config.BASE_URL }}{{ user.feed.atom }}" type="application/atom+xml"></Link>
-    <Link rel="salmon" href="{{ config.BASE_URL }}{{ user.feed.salmon }}"></Link>
+          href="{{ user.feed_uri }}" type="application/atom+xml"></Link>
+    <Link rel="salmon" href="{{ user.salmon_uri }}"></Link>
     <Link rel="http://salmon-protocol.org/ns/salmon-replies"
-          href="{{ config.BASE_URL }}{{ user.feed.salmon }}"></Link>
+          href="{{ user.salmon_uri }}"></Link>
     <Link rel="http://salmon-protocol.org/ns/salmon-mention"
-          href="{{ config.BASE_URL }}{{ user.feed.salmon }}"></Link>
+          href="{{ user.salmon_uri }}"></Link>
     <Link rel="http://ostatus.org/schema/1.0/subscribe"
           template="{{ config.BASE_URL }}/main/push/sub/{uri}"></Link>
     <Link rel="magic-public-key"
-          href="data:application/magic-public-key,{{ user.public_key }}"></Link>
+          href="data:application/magic-public-key,{{ user.magic_public_key }}"></Link>
 </XRD>

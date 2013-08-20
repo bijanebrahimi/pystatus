@@ -11,8 +11,8 @@ def create_db():
     db.create_all()
 
 
-def user_create(nickname, email, password):
-    user = User(nickname=nickname,
+def user_create(username, email, password):
+    user = User(username=username,
                 password=generate_password_hash(password),
                 email=email)
     db.session.add(user)
@@ -20,5 +20,5 @@ def user_create(nickname, email, password):
         db.session.commit()
         return user
     except:
-        db.session.delete(user_entity)
+        db.session.delete(user)
         return False

@@ -13,11 +13,12 @@ def webfinger_hostmeta():
 
 @bp.route("/main/xrd/<uri>", methods=['GET'])
 def webfinger_xrd(uri):
-    try:
-        (nickname, host) = uri.replace(r"acct:", "").split("@")
-        user = User.query.filter(User.nickname==nickname).first_or_404()
-        response= make_response(render_template('webfinger/xrd.xml', user=user))
-        response.headers['Content-Type'] = 'application/xrd+xml'
-        return response
-    except:
-        abort(503)
+    # try:
+    (username, host) = uri.replace(r"acct:", "").split("@")
+    user = User.query.filter(User.username==username).first_or_404()
+    response= make_response(render_template('webfinger/xrd.xml', user=user))
+    response.headers['Content-Type'] = 'application/xrd+xml'
+    return response
+    # except Exception as e:
+        # print e.message
+        # abort(503)
