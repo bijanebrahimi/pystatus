@@ -11,3 +11,9 @@ def str_to_datetime(string):
             milisecond = '0'
         time = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute), int(second), int(milisecond))
     return time
+
+def datetime_to_rfc3339(date, timezone=False):
+    if isinstance(date, datetime):
+        return '%.4d-%.2d-%.2dT%.2d:%.2d:%.2d.%.2d%s' % (date.year, date.month, date.day,
+                                                       date.hour, date.minute, date.second, date.microsecond,
+                                                       'Z')
