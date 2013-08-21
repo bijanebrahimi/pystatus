@@ -1,5 +1,6 @@
 import re
 import datetime
+from BeautifulSoup import BeautifulStoneSoup
 
 def str_to_datetime(string):
     time = None
@@ -17,3 +18,6 @@ def datetime_to_rfc3339(date, timezone=False):
         return '%.4d-%.2d-%.2dT%.2d:%.2d:%.2d.%.2d%s' % (date.year, date.month, date.day,
                                                        date.hour, date.minute, date.second, date.microsecond,
                                                        'Z')
+
+def str_to_xml(string):
+    return BeautifulStoneSoup(string, selfClosingTags=['thr:in-reply-to', 'category', 'followers', 'statusnet:profile_info', 'link'])

@@ -2,11 +2,8 @@
 import re
 import simplejson as json
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
-from convert import str_to_datetime
+from convert import str_to_datetime, str_to_xml
 from datetime import datetime
-
-def customized_xml(string):
-    return BeautifulStoneSoup(string, selfClosingTags=['thr:in-reply-to', 'category', 'followers', 'statusnet:profile_info', 'link'])
 
 class ActivityStreamObject(object):
     # TODO: `title` and `summary` were skipped
@@ -80,6 +77,25 @@ class ActivityStreamObject(object):
         return self.json.get('content')
 
     # Extension: Portable Contacts
+    def set_portableContact(self, preferredUsername=None, displayName=None, note=None, address=None, url=None):
+        if self.get_portableContact() is None:
+            self.json['contact'] = {}
+        if preferredUsername:
+            self.json['contact']['preferredUsername'] = preferredUsername
+        if displayName:
+            self.json['contact']['displayName'] = displayName
+        if note:
+            self.json['contact']['note'] = note
+        if xml.name == 'poco:address':
+            # TODO: region, postalCode, country is missing
+            if self.json['contact'].get('addresses') is None and address:
+                self.json['contact']['addresses'] = dict(formatted=address)
+        if urls:
+            if self.json['contact'].get('urls') is None:
+                self.json['contact']['urls'] = []
+            self.json['contact']['urls'].append(dict(type=url.get('type'),
+                                                     value=url.get('value'),
+                                                     primary=url.get('primary')))
     def add_portableContact(self, xml):
         # TODO: xml should be BeautifulSoup.*
         if self.get_portableContact() is None:
@@ -102,6 +118,13 @@ class ActivityStreamObject(object):
                                                      primary=xml.findChildren('poco:primary')[0].text))
     def get_portableContact(self):
         return self.json.get('contact')
+    def set_statusnet(self, local_id=None, source=None):
+        if self.get_statusnet() is None:
+            self.json['statusnet:profile_info'] = {}
+        if source:
+            self.json['statusnet:profile_info']['source'] = source
+        if local_id:
+            self.json['statusnet:profile_info']['local_id'] = local_id
     def add_statusnet(self, xml):
         if self.get_statusnet() is None and xml.name == 'statusnet:profile_info':
             self.json['statusnet:profile_info'] = dict(local_id=xml.get('local_id'),
@@ -115,7 +138,7 @@ class ActivityStreamObject(object):
             xml = xml.encode('utf-8')
         if isinstance(xml, str):
             # xml = BeautifulSoup(xml)
-            xml = customized_xml(xml)
+            xml = str_to_xml(xml)
             if xml.name == '[document]':
                 xml = xml.findChild()
         self.set_type(xml.name)
@@ -197,7 +220,7 @@ class ActivityStreamObject(object):
             string += '</activity:%s>' % self.get_type()
         return string
     def to_xml(self):
-        return customized_xml(self.to_string())
+        return str_to_xml(self.to_string())
     def to_json(self):
         # TODO: escape strings like "image\/png"
         skip = ['followers']
@@ -230,7 +253,7 @@ class ActivityStreamEntry(object):
         if isinstance(actor, unicode):
             actor = actor.encode('utf-8')
         if isinstance(actor, str):
-            actor = customized_xml(actor)
+            actor = str_to_xml(actor)
         if isinstance(actor, ActivityStreamObject):
             self.json['actor'] = actor
         else:
@@ -248,7 +271,7 @@ class ActivityStreamEntry(object):
         if isinstance(obj, unicode):
             obj = obj.encode('utf-8')
         if isinstance(obj, str):
-            obj = customized_xml(obj)
+            obj = str_to_xml(obj)
         if isinstance(obj, ActivityStreamObject):
             self.json['object'] = obj
         else:
@@ -267,7 +290,7 @@ class ActivityStreamEntry(object):
         if isinstance(target, unicode):
             target = target.encode('utf-8')
         if isinstance(target, str):
-            target = customized_xml(target)
+            target = str_to_xml(target)
         if isinstance(target, ActivityStreamObject):
             self.json['to'] = target
         else:
@@ -332,6 +355,21 @@ class ActivityStreamEntry(object):
         return self.json.get('objectType')
     
     # Extensions
+    def set_ostatus(self, conversation=None, attentions=None, mentioneds=None):
+        if self.json.get('context') is None:
+            self.json['context'] = {}
+        if conversation:
+            self.json['context']['conversation'] = conversation
+        if attentions:
+            if self.json['context'].get('attention') is None:
+                self.json['context']['attention'] = []
+            for attention in attentions:
+                self.json['context']['attention'].append(attention)
+        if mentioneds:
+            if self.json['context'].get('mentioned') is None:
+                self.json['context']['mentioned'] = []
+            for mentioned in mentioneds:
+                self.json['context']['mentioned'].append(mentioned)
     def add_ostatus(self, xml):
         # FIXME: how to represent attention/mentioned in JSON representation
         if self.json.get('context') is None:
@@ -348,12 +386,24 @@ class ActivityStreamEntry(object):
             self.json['context']['mentioned'].append(xml.get('href'))
     def get_ostatus(self):
         return self.json.get('context')
+    def set_statusnet(self, local_id=None, source=None):
+        if self.get_statusnet() is None:
+            self.json['statusnet:profile_info'] = {}
+        if source:
+            self.json['statusnet:profile_info']['source'] = source
+        if local_id:
+            self.json['statusnet:profile_info']['local_id'] = local_id
     def add_statusnet(self, xml):
         if self.get_statusnet() is None and xml.name == 'statusnet:profile_info':
             self.json['statusnet:profile_info'] = dict(local_id=xml.get('local_id'),
                                                        source=xml.get('source'))
     def get_statusnet(self):
         return self.json.get('statusnet:profile_info')
+    def set_thr(self, id, url):
+        if self.json.get('context') is None:
+            self.json['context'] = {}
+        self.json['context']['inReplyTo'] = dict(id=id,
+                                                 url=url)
     def add_thr(self, xml):
         if self.json.get('context') is None:
             self.json['context'] = {}
@@ -368,7 +418,7 @@ class ActivityStreamEntry(object):
         if isinstance(xml, unicode):
             xml = xml.encode('utf-8')
         if isinstance(xml, str):
-            xml = customized_xml(xml)
+            xml = str_to_xml(xml)
             if xml.name == '[document]':
                 xml = xml.findChild()
         self.set_type(xml.name=='entry')
@@ -466,7 +516,7 @@ class ActivityStreamEntry(object):
         string += '</entry>'
         return string
     def to_xml(self):
-        return customized_xml(self.to_string())
+        return str_to_xml(self.to_string())
     def to_json(self):
         pass
     def to_list(self):
@@ -552,7 +602,7 @@ class ActivityStreamFeed(object):
         if isinstance(actor, unicode):
             actor = actor.encode('utf-8')
         if isinstance(actor, str):
-            actor = customized_xml(actor)
+            actor = str_to_xml(actor)
         if isinstance(actor, ActivityStreamObject):
             self.json['actor'] = actor
         else:
@@ -570,7 +620,7 @@ class ActivityStreamFeed(object):
         if isinstance(obj, unicode):
             obj = obj.encode('utf-8')
         if isinstance(obj, str):
-            obj = customized_xml(obj)
+            obj = str_to_xml(obj)
         if isinstance(obj, ActivityStreamObject):
             self.json['object'] = obj
         else:
@@ -589,7 +639,7 @@ class ActivityStreamFeed(object):
         if isinstance(target, unicode):
             target = target.encode('utf-8')
         if isinstance(target, str):
-            target = customized_xml(target)
+            target = str_to_xml(target)
         if isinstance(target, ActivityStreamObject):
             self.json['to'] = target
         else:
@@ -619,7 +669,7 @@ class ActivityStreamFeed(object):
         if isinstance(xml, unicode):
             xml = xml.encode('utf-8')
         if isinstance(xml, str):
-            xml = customized_xml(xml)
+            xml = str_to_xml(xml)
         if xml.name == '[document]':
             xml = xml.findChild()
         el = xml.findChild()
@@ -706,7 +756,7 @@ class ActivityStreamFeed(object):
         string += '</feed>'
         return string
     def to_xml(self):
-        return customized_xml(self.to_string())
+        return str_to_xml(self.to_string())
     def to_json(self):
         json_result = dict( (key, value) for (key, value) in self.json.iteritems() if key not in ['ns, id', 'published', 'updated', 'alternate', 'self', 'subscription', 'salmon', 'hub'] )
         # TODO: include totalItems
